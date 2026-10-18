@@ -1,0 +1,10 @@
+{
+  "extends": "../fabric/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["react"],
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}

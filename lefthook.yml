@@ -3,5 +3,7 @@ pre-commit:
   commands:
     lint:
       run: pnpm lint
+    doctor:
+      run: pnpm react-doctor
     format:
       run: pnpm format:check

@@ -1,0 +1,33 @@
+{
+  "name": "@react-fabrio/react",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "react-fabrio-source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build --config ../../vite.library.config.ts && tsc -p tsconfig.json --emitDeclarationOnly",
+    "typecheck": "tsc -p tsconfig.json --noEmit --customConditions react-fabrio-source --rootDir ../.."
+  },
+  "dependencies": {
+    "@react-fabrio/core": "workspace:*",
+    "@react-fabrio/fabric": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "~7.0.2"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

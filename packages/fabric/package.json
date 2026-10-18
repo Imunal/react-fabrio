@@ -1,13 +1,29 @@
 {
   "name": "@react-fabrio/fabric",
   "version": "0.0.1",
-  "type": "module",
+  "private": true,
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "react-fabrio-source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit --customConditions react-fabrio-source --rootDir ../.."
   },
   "dependencies": {
     "@react-fabrio/core": "workspace:*",
     "fabric": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "~7.0.2"
   }
 }
