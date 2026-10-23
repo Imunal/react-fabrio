@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-fabrio/core": "workspace:*",
+    "@react-fabrio/fabric": "workspace:*",
+    "@react-fabrio/react": "workspace:*",
+    "@react-fabrio/three": "workspace:*",
     "@react-fabrio/ui": "workspace:*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

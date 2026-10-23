@@ -1,26 +1,24 @@
+import { useFabrioTranslation } from "./i18n.js";
 import { Button } from "react-aria-components";
 import { useEditor } from "@react-fabrio/react";
-
-export const EditorToolbar = () => {
-  const { editor, layers, product } = useEditor();
-  const download = () => {
-    if (!editor) return;
-    const link = document.createElement("a");
-    link.href = editor.exportPng();
-    link.download = `${product.id}-design.png`;
-    link.click();
-  };
+/**
+ * Renders localized undo/redo controls using the current session history.
+ *
+ * @param props - Optional disabled state and supported panel callbacks.
+ *
+ * @remarks
+ * Requires `FabrioI18nProvider`, `EditorProvider` and the UI stylesheet.
+ */
+export const EditorToolbar = ({ disabled }: { disabled?: boolean }) => {
+  const { t } = useFabrioTranslation();
+  const { editor, canUndo, canRedo } = useEditor();
   return (
     <div className="rf-toolbar">
-      <Button
-        className="rf-button rf-primary"
-        isDisabled={!editor}
-        onPress={() => editor?.addText()}
-      >
-        + Add text
+      <Button className="rf-button" isDisabled={disabled || !canUndo} onPress={() => editor.undo()}>
+        {t("undo")}
       </Button>
-      <Button className="rf-button" isDisabled={!editor || layers.length === 0} onPress={download}>
-        Download PNG <span aria-hidden="true">↗</span>
+      <Button className="rf-button" isDisabled={disabled || !canRedo} onPress={() => editor.redo()}>
+        {t("redo")}
       </Button>
     </div>
   );

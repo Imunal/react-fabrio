@@ -10,7 +10,13 @@ export default defineConfig({
   build: {
     lib: { entry: "src/index.ts", formats: ["es"], fileName: "index" },
     rolldownOptions: {
-      external: [/^react(?:-dom)?(?:\/|$)/, /^@react-fabrio\//, /^react-aria-components(?:\/|$)/],
+      external: [
+        /^react(?:-dom)?(?:\/|$)/,
+        /^@react-fabrio\//,
+        /^react-aria-components(?:\/|$)/,
+        /^i18next(?:\/|$)/,
+        /^react-i18next(?:\/|$)/,
+      ],
     },
   },
 });

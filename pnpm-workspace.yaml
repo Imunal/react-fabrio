@@ -4,4 +4,5 @@ packages:
 
 allowBuilds:
   lefthook: true
+  esbuild: true
   canvas: false

@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,5 +23,120 @@ jobs:
       - run: pnpm react-doctor
       - run: pnpm format:check
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm test:coverage
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
       - run: pnpm build
+      - run: node scripts/check-docs.mjs
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: playwright-failures
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/check-docs.mjs
+      - run: pnpm docs:build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm docs:test
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: apps/docs/dist/client
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: docs-playwright-failures
+          path: apps/docs/test-results/
+          retention-days: 7
+
+  publish:
+    name: Publish npm packages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [validate, e2e, docs]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: npm-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - name: Build library packages
+        run: pnpm --filter './packages/**' -r build
+      - name: Publish packages and create GitHub release
+        run: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  deploy-docs:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [validate, e2e, docs]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy documentation
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Check public documentation
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          node --input-type=module <<'JS'
+          const base = process.env.SITE_URL.replace(/\/$/, "");
+          for (const path of ["/", "/docs/agents/domain/", "/llms.txt", "/llms-full.txt", "/docs/content.md", "/api/search.json"]) {
+            const response = await fetch(`${base}${path}`);
+            if (!response.ok) throw new Error(`${path}: ${response.status}`);
+            const text = await response.text();
+            if (text.length < 100) throw new Error(`Empty documentation: ${path}`);
+            if (!path.endsWith("/") && /<!doctype html/i.test(text)) throw new Error(`HTML fallback: ${path}`);
+          }
+          JS

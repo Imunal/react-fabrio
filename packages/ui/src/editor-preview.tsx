@@ -1,25 +1,20 @@
+import { useFabrioTranslation } from "./i18n.js";
 import { EditorCanvas, useEditor } from "@react-fabrio/react";
-
+/**
+ * Renders the interactive canvas in a preview container.
+ *
+ * @remarks
+ * Requires `FabrioI18nProvider`, `EditorProvider` and the UI stylesheet.
+ */
 export const EditorPreview = () => {
-  const { product, layers } = useEditor();
+  const { t } = useFabrioTranslation();
+  const { area } = useEditor();
   return (
-    <section className="rf-preview" aria-label="Design preview">
-      <div className="rf-preview-heading">
-        <span>Preview</span>
-        <span>
-          {product.width} × {product.height} mm
-        </span>
-      </div>
+    <section className="rf-preview" aria-label={t("preview")}>
       <div className="rf-workspace">
-        <div className="rf-product" style={{ aspectRatio: `${product.width} / ${product.height}` }}>
-          <EditorCanvas className="rf-canvas" />
+        <div className="rf-product" style={{ aspectRatio: `${area.width}/${area.height}` }}>
+          <EditorCanvas className="rf-canvas" ariaLabel={t("canvasLabel")} />
         </div>
-      </div>
-      <div className="rf-preview-footer">
-        <span>{product.name}</span>
-        <output>
-          {layers.length} text {layers.length === 1 ? "element" : "elements"}
-        </output>
       </div>
     </section>
   );

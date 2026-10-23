@@ -27,3 +27,7 @@ playwright-report
 *.njsproj
 *.sln
 *.sw?
+
+# Generated documentation artifacts
+apps/docs/.source/
+apps/docs/.tanstack/
