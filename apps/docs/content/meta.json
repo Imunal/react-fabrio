@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "index",
+    "---Tutorials---",
+    "quick-start",
+    "---How-to guides---",
+    "integration",
+    "guides",
+    "migration",
+    "---Reference---",
+    "api",
+    "packages",
+    "configuration",
+    "design-document",
+    "assets-and-fonts",
+    "previews",
+    "production",
+    "editor-ux",
+    "examples",
+    "---Explanation---",
+    "product",
+    "architecture",
+    "[Glossary](https://github.com/Imunal/react-fabrio/blob/main/GLOSSARY.md)",
+    "---Contributing---",
+    "[Contributing](https://github.com/Imunal/react-fabrio/blob/main/CONTRIBUTING.md)",
+    "release",
+    "releasing",
+    "documentation",
+    "agents"
+  ]
+}

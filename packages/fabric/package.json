@@ -1,13 +1,13 @@
 {
   "name": "@react-fabrio/fabric",
   "version": "0.0.1",
-  "private": true,
   "license": "MIT",
   "files": [
     "dist"
   ],
   "type": "module",
   "sideEffects": false,
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "react-fabrio-source": "./src/index.ts",
@@ -15,15 +15,24 @@
       "import": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit --customConditions react-fabrio-source --rootDir ../.."
+    "typecheck": "tsc -p tsconfig.json --noEmit --customConditions react-fabrio-source --rootDir ../..",
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@react-fabrio/core": "workspace:*",
-    "fabric": "^7.0.0"
+    "fabric": "^7.0.0",
+    "flo-boolean": "5.0.8",
+    "fontkit": "^2.0.4",
+    "saxes": "^6.0.0",
+    "svgpath": "^2.6.0"
   },
   "devDependencies": {
+    "@types/fontkit": "^2.0.9",
     "typescript": "~7.0.2"
   }
 }

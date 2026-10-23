@@ -1,14 +1,42 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "typescript", "oxc", "jsx-a11y", "import"],
-  "categories": { "correctness": "error" },
-  "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/coverage/**",
+    "**/node_modules/**",
+    "**/.source/**",
+    "**/.tanstack/**",
+    "**/routeTree.gen.ts"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "error",
     "no-unused-vars": "error",
     "import/no-cycle": "error",
     "no-async-promise-executor": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["apps/docs/src/routes/**/*.{ts,tsx}"],
+      "rules": {
+        "react/only-export-components": [
+          "warn",
+          {
+            "allowConstantExport": true,
+            "allowExportNames": ["Route"]
+          }
+        ]
+      }
+    }
+  ]
 }

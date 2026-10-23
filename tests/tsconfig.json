@@ -1,8 +1,15 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2023"],
-    "types": ["node"]
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client"],
+    "jsx": "react-jsx",
+    "paths": {
+      "@react-fabrio/core": ["../packages/core/src/index.ts"],
+      "@react-fabrio/ui": ["../packages/ui/src/index.ts"],
+      "react/jsx-runtime": ["../packages/ui/node_modules/@types/react/jsx-runtime.d.ts"],
+      "@react-fabrio/core/examples": ["../packages/core/src/examples.ts"]
+    }
   },
-  "include": ["*.ts"]
+  "include": ["*.ts", "*.tsx"]
 }

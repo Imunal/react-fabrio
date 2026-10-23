@@ -1,4 +1,11 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": ["**/dist/**", "**/coverage/**", "pnpm-lock.yaml"]
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/coverage/**",
+    "pnpm-lock.yaml",
+    "**/.source/**",
+    "**/.tanstack/**",
+    "**/routeTree.gen.ts"
+  ]
 }

@@ -1,13 +1,27 @@
 @import "tailwindcss";
-
-@layer base {
-  body {
-    margin: 0;
-    background: #fbfbf7;
-    font-family: system-ui, sans-serif;
-  }
-  a:focus-visible {
-    outline: 3px solid #257454;
-    outline-offset: 4px;
-  }
+@font-face {
+  font-family: Manrope;
+  src: url("/fonts/Manrope.ttf") format("truetype");
+  font-weight: 200 800;
+  font-display: swap;
+}
+body {
+  margin: 0;
+  background: #f4f3ef;
+  font-family: Manrope, sans-serif;
+}
+.playground {
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+}
+.playground-error {
+  position: fixed;
+  bottom: 72px;
+  left: 16px;
+  right: 16px;
+  padding: 16px;
+  background: #fff1e8;
+  color: #793a25;
+  z-index: 10;
 }
