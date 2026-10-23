@@ -80,7 +80,8 @@ const installConsumer = async (
     : ["consumer.ts", "consumer.mjs", "consumer-browser.ts"]) {
     await cp(resolve(`tests/fixtures/${file}`), join(directory, file));
   }
-  run(directory, "pnpm", ["install", "--offline", "--ignore-scripts", "--reporter=append-only"]);
+  // A frozen workspace install does not cache registry metadata for these new consumers.
+  run(directory, "pnpm", ["install", "--ignore-scripts", "--reporter=append-only"]);
 };
 
 test("tarballs support core without React/DOM and UI with or without optional Three", async () => {

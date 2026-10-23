@@ -28,6 +28,7 @@
     "fabric": "^7.0.0",
     "flo-boolean": "5.0.8",
     "fontkit": "^2.0.4",
+    "saxes": "^6.0.0",
     "svgpath": "^2.6.0"
   },
   "devDependencies": {

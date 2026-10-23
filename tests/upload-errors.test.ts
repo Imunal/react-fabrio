@@ -49,7 +49,7 @@ test.each([
   expect(editor.getSnapshot().document.assets).toEqual({});
 });
 
-test("reports unreadable SVG with a stable code and retains the parser cause", async () => {
+test("reports empty SVG with a stable code and retains the parser cause", async () => {
   const editor = createEditorSession({ ...mugProduct, upload: { mimeTypes: ["image/svg+xml"] } });
   vi.mocked(useEditorContext).mockReturnValue(editor);
   const onError = vi.fn();
@@ -59,7 +59,7 @@ test("reports unreadable SVG with a stable code and retains the parser cause", a
   expect(onError).toHaveBeenCalledWith(
     expect.objectContaining({
       code: "invalid-svg",
-      cause: expect.objectContaining({ message: "Malformed geometry SVG." }),
+      cause: expect.objectContaining({ message: "SVG must contain filled geometry." }),
     }),
   );
   expect(editor.getSnapshot().document.areas.wrap).toEqual([]);

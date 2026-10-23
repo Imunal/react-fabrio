@@ -1,3 +1,4 @@
+import { SaxesParser } from "saxes";
 import { validatePath } from "./geometry.js";
 /**
  * Validates SVG against the supported geometry-only subset.
@@ -11,66 +12,160 @@ import { validatePath } from "./geometry.js";
  * Use `importSvgPath` to resolve transforms and enforce supported filled geometry.
  */
 export const parseRestrictedSvg = (source: string): string => {
-  if (/[&]|<!|<\?/.test(source)) throw new Error("SVG entities and declarations are prohibited.");
-  const tags = new Set([
-    "svg",
-    "g",
-    "path",
-    "rect",
-    "circle",
-    "ellipse",
-    "polygon",
-    "polyline",
-    "line",
-  ]);
-  const attributes = new Set([
-    "xmlns",
-    "viewBox",
-    "width",
-    "height",
-    "x",
-    "y",
-    "x1",
-    "x2",
-    "y1",
-    "y2",
-    "cx",
-    "cy",
-    "r",
-    "rx",
-    "ry",
-    "d",
-    "points",
-    "transform",
-    "fill",
-    "stroke",
-    "stroke-width",
-    "fill-rule",
-  ]);
-  let consumed = "";
-  for (const match of source.matchAll(/<\/?([a-zA-Z][\w:-]*)([^<>]*?)\/?\s*>/g)) {
-    if (!tags.has(match[1])) throw new Error(`Unsupported SVG element: ${match[1]}`);
-    let rest = match[2];
-    for (const attribute of rest.matchAll(/([\w:-]+)\s*=\s*(["'])(.*?)\2/g)) {
-      if (
-        !attributes.has(attribute[1]) ||
-        (/url\s*\(|javascript:|data:|https?:/i.test(attribute[3]) &&
-          !(attribute[1] === "xmlns" && attribute[3] === "http://www.w3.org/2000/svg"))
-      )
-        throw new Error(`Unsupported SVG attribute: ${attribute[1]}`);
-      rest = rest.replace(attribute[0], "");
-    }
-    if (rest.trim()) throw new Error("Malformed SVG attributes.");
-    consumed += match[0];
-  }
-  if (
-    source.replace(/<[^<>]*>/g, "").trim() ||
-    source.replace(/\s/g, "") !== consumed.replace(/\s/g, "") ||
-    !/^\s*<svg\b/.test(source) ||
-    !/<\/svg>\s*$/.test(source)
-  )
-    throw new Error("Malformed geometry SVG.");
+  readRestrictedSvg(source);
   return source;
+};
+
+type SvgToken = { name: string; attributes: Record<string, string>; closing: boolean };
+
+const tags = new Set([
+  "svg",
+  "g",
+  "path",
+  "rect",
+  "circle",
+  "ellipse",
+  "polygon",
+  "polyline",
+  "line",
+]);
+const attributes = new Set([
+  "xmlns",
+  "viewBox",
+  "width",
+  "height",
+  "x",
+  "y",
+  "x1",
+  "x2",
+  "y1",
+  "y2",
+  "cx",
+  "cy",
+  "r",
+  "rx",
+  "ry",
+  "d",
+  "points",
+  "transform",
+  "fill",
+  "stroke",
+  "stroke-width",
+  "fill-rule",
+]);
+const isWhitespace = (char: string | undefined): boolean =>
+  char === " " || char === "\t" || char === "\r" || char === "\n";
+
+// Parse once for validation and import. SAX checks the entire XML document,
+// including tag balance, attribute quoting/duplicates and the single root.
+const readRestrictedSvg = (source: string): SvgToken[] => {
+  if (source.includes("&") || source.includes("<!") || source.includes("<?"))
+    throw new Error("SVG entities and declarations are prohibited.");
+  const tokens: SvgToken[] = [];
+  const parser = new SaxesParser({ xmlns: false });
+  parser.on("error", (error) => {
+    throw new Error(`Unbalanced or malformed SVG: ${error.message}`);
+  });
+  parser.on("text", (text) => {
+    for (const char of text) if (!isWhitespace(char)) throw new Error("SVG must not contain text.");
+  });
+  parser.on("opentag", (tag) => {
+    if (!tags.has(tag.name)) throw new Error(`Unsupported SVG element: ${tag.name}`);
+    if (!tokens.length && tag.name !== "svg") throw new Error("SVG requires an svg root.");
+    for (const [name, value] of Object.entries(tag.attributes)) {
+      if (
+        !attributes.has(name) ||
+        (name === "xmlns" && value !== "http://www.w3.org/2000/svg") ||
+        (/url\s*\(|javascript:|data:|https?:/i.test(value) && name !== "xmlns")
+      )
+        throw new Error(`Unsupported SVG attribute: ${name}`);
+    }
+    tokens.push({ name: tag.name, attributes: tag.attributes, closing: false });
+  });
+  parser.on("closetag", (tag) => {
+    tokens.push({ name: tag.name, attributes: {}, closing: true });
+  });
+  parser.write(source).close();
+  return tokens;
+};
+
+// A single cursor consumes each transform name, separator and finite SVG number.
+// Validate arity before svgpath, whose transform parser otherwise ignores errors.
+const parseTransform = (source: string): string => {
+  const commands: string[] = [];
+  let index = 0;
+  const fail = (): never => {
+    throw new Error("Invalid SVG transform.");
+  };
+  const whitespace = () => {
+    while (isWhitespace(source[index])) index++;
+  };
+  const digit = (char: string | undefined) => char !== undefined && char >= "0" && char <= "9";
+  whitespace();
+  while (index < source.length) {
+    const start = index;
+    while (source[index] && /[a-zA-Z]/.test(source[index])) index++;
+    const name = source.slice(start, index);
+    const arities: Record<string, number[]> = {
+      matrix: [6],
+      translate: [1, 2],
+      scale: [1, 2],
+      rotate: [1, 3],
+      skewX: [1],
+      skewY: [1],
+    };
+    if (!Object.hasOwn(arities, name)) fail();
+    whitespace();
+    if (source[index++] !== "(") fail();
+    whitespace();
+    const numbers: number[] = [];
+    while (source[index] !== ")") {
+      const numberStart = index;
+      if (source[index] === "+" || source[index] === "-") index++;
+      let digits = 0;
+      while (digit(source[index])) {
+        index++;
+        digits++;
+      }
+      if (source[index] === ".") {
+        index++;
+        while (digit(source[index])) {
+          index++;
+          digits++;
+        }
+      }
+      if (!digits) fail();
+      if (source[index] === "e" || source[index] === "E") {
+        index++;
+        if (source[index] === "+" || source[index] === "-") index++;
+        const exponentStart = index;
+        while (digit(source[index])) index++;
+        if (index === exponentStart) fail();
+      }
+      const value = Number(source.slice(numberStart, index));
+      if (!Number.isFinite(value)) fail();
+      numbers.push(value);
+      const separatorStart = index;
+      whitespace();
+      if (source[index] === ")") break;
+      if (source[index] === ",") {
+        index++;
+        whitespace();
+      } else if (index === separatorStart) fail();
+      if (source[index] === ")") fail();
+    }
+    if (!arities[name].includes(numbers.length)) fail();
+    commands.push(`${name}(${numbers.join(" ")})`);
+    index++;
+    whitespace();
+    if (source[index] === ",") {
+      index++;
+      whitespace();
+      if (index === source.length) fail();
+    }
+  }
+  if (source.length && !commands.length) fail();
+  return commands.join(" ");
 };
 
 /**
@@ -82,19 +177,15 @@ export const parseRestrictedSvg = (source: string): string => {
  * such as strokes, open lines, nested SVG viewports or even-odd fills.
  */
 export const importSvgPath = async (source: string): Promise<string> => {
-  parseRestrictedSvg(source);
+  const tokens = readRestrictedSvg(source);
   const { default: svgpath } = await import("svgpath");
   const stack: { name: string; transform: string; fill: string }[] = [];
   const paths: string[] = [];
-  for (const token of source.matchAll(/<(\/?)([\w]+)([^<>]*?)\s*(\/?)>/g)) {
-    const [, closing, name, raw, selfClosing] = token;
+  for (const { name, attributes: attrs, closing } of tokens) {
     if (closing) {
-      if (stack.pop()?.name !== name) throw new Error("Unbalanced SVG elements.");
+      stack.pop();
       continue;
     }
-    const attrs: Record<string, string> = {};
-    for (const attribute of raw.matchAll(/([\w:-]+)\s*=\s*(["'])(.*?)\2/g))
-      attrs[attribute[1]] = attribute[3];
     const n = (key: string, fallback = 0) => {
       const value = attrs[key] === undefined ? fallback : Number(attrs[key]);
       if (!Number.isFinite(value))
@@ -108,12 +199,7 @@ export const importSvgPath = async (source: string): Promise<string> => {
     if (attrs["fill-rule"] && attrs["fill-rule"] !== "nonzero")
       throw new Error("Convert even-odd fills to nonzero outlined paths before importing.");
     const fill = attrs.fill ?? stack.at(-1)?.fill ?? "black";
-    const own = attrs.transform ?? "";
-    if (
-      own &&
-      !/^(?:\s*(?:matrix|translate|scale|rotate|skewX|skewY)\s*\([\d\s.,+eE-]+\)\s*)+$/.test(own)
-    )
-      throw new Error("Invalid SVG transform.");
+    const own = parseTransform(attrs.transform ?? "");
     // SVG transform lists multiply right-to-left. Ancestors precede descendants.
     const transform = stack.map((parent) => parent.transform).join(" ") + " " + own;
     let path = "";
@@ -158,10 +244,15 @@ export const importSvgPath = async (source: string): Promise<string> => {
       if (fill !== "none" && fill !== "transparent") {
         const parsed = svgpath(path).transform(transform).unshort().unarc().abs();
         if ("err" in parsed && parsed.err) throw new Error(String(parsed.err));
+        parsed.iterate((segment) => {
+          for (const value of segment)
+            if (typeof value === "number" && !Number.isFinite(value))
+              throw new Error("SVG geometry must use finite coordinates after transforms.");
+        });
         paths.push(parsed.toString());
       }
     }
-    if (!selfClosing) stack.push({ name, transform: own, fill });
+    stack.push({ name, transform: own, fill });
   }
   if (stack.length || !paths.length) throw new Error("SVG must contain filled geometry.");
   return paths.join(" ");

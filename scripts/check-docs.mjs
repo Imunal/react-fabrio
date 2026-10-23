@@ -27,15 +27,29 @@ const files = [
 const failures = [];
 const stripCode = (content) =>
   content.replace(/^---\n[^]*?\n---\n/, "").replace(/```[^]*?```/g, "");
+// Build an anchor from visible heading characters; this does not produce HTML.
+const headingAnchor = (heading) => {
+  let anchor = "";
+  let inTag = false;
+  const text = heading.toLowerCase();
+  const lastTagEnd = text.lastIndexOf(">");
+  let index = 0;
+  for (const character of text) {
+    if (character === "<" && index < lastTagEnd) inTag = true;
+    else if (character === ">" && inTag) inTag = false;
+    else if (!inTag) {
+      if (/\s/u.test(character)) anchor += "-";
+      else if (/[\p{L}\p{N}_-]/u.test(character)) anchor += character;
+    }
+    index += character.length;
+  }
+  return anchor;
+};
 const anchors = (text) => {
   const counts = new Map();
   const result = new Set();
   for (const match of stripCode(text).matchAll(/^#{1,6}\s+(.+?)(?:\s+#+)?$/gm)) {
-    const base = match[1]
-      .toLowerCase()
-      .replace(/<[^>]*>/g, "")
-      .replace(/[^\p{L}\p{N}_\-\s]/gu, "")
-      .replace(/\s/g, "-");
+    const base = headingAnchor(match[1]);
     const count = counts.get(base) ?? 0;
     counts.set(base, count + 1);
     result.add(count ? `${base}-${count}` : base);
