@@ -1,5 +1,9 @@
 # React Fabrio
 
+<p align="center">
+  <img src=".github/assets/react-fabrio-logo.png" alt="React Fabrio logo" width="720" />
+</p>
+
 [![CI](https://github.com/Imunal/react-fabrio/actions/workflows/ci.yml/badge.svg)](https://github.com/Imunal/react-fabrio/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/Imunal/react-fabrio/branch/main/graph/badge.svg)](https://codecov.io/gh/Imunal/react-fabrio)
 

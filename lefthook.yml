@@ -8,4 +8,4 @@ pre-commit:
     format:
       run: pnpm format:check
     typecheck:
-      run: typecheck
+      run: pnpm typecheck
