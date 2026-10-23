@@ -24,8 +24,10 @@ for (const [width, height] of [
     );
     await move.getByRole("button", { name: "Przesuń w prawo" }).click();
     await expect(page.getByLabel("X (mm)", { exact: true })).toHaveValue("81");
+    await align.getByRole("button", { name: "Wyśrodkuj poziomo" }).scrollIntoViewIfNeeded();
     await align.getByRole("button", { name: "Wyrównaj do lewej" }).focus();
     await page.keyboard.press("Tab");
+    await expect(align.getByRole("button", { name: "Wyśrodkuj poziomo" })).toBeFocused();
     await expect(page.getByRole("tooltip")).toContainText("Wyśrodkuj poziomo");
     await page.keyboard.press("Enter");
     await expect(page.getByLabel("X (mm)", { exact: true })).toHaveValue("45");

@@ -4,7 +4,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { expect, test } from "vitest";
 
-const publicPackages = ["core", "fabric", "react", "ui", "three"] as const;
+// UI declaration generation needs Three built, even though the runtime peer is optional.
+const publicPackages = ["core", "fabric", "react", "three", "ui"] as const;
 const run = (directory: string, command: string, args: string[]) =>
   execFileSync(command, args, { cwd: directory, encoding: "utf8", stdio: "pipe", timeout: 60_000 });
 

@@ -3,7 +3,7 @@ title: "Domain orientation"
 description: "Domain vocabulary and task-specific reading paths."
 ---
 
-This repository has one domain context. Before exploring code, read the root [glossary](../../../../GLOSSARY.md) and the relevant [document](../adr/0001-renderer-independent-document.md), [physical output](../adr/0002-physical-coordinates-and-output.md), or [optional mug](../adr/0003-optional-mug-preview.md) decision.
+This repository has one domain context. Before exploring code, read the root [glossary](../../../../GLOSSARY.md) and [architecture](../architecture.md). For document, output or preview work, also read the [design document](../design-document.md), [production](../production.md) or [previews](../previews.md) reference.
 
 Use the glossary's vocabulary in code, tests, issues and documentation. Record domain terms there; keep implementation details in reference documents.
 
@@ -16,4 +16,4 @@ Use the glossary's vocabulary in code, tests, issues and documentation. Record d
 | Uploads, text, SVG import             | [Assets and fonts](../assets-and-fonts.md)                                   |
 | Previews or production                | [Previews](../previews.md), [production](../production.md)                   |
 
-Update the authoritative reference when its contract changes. Check the actual exported types before copying an API example. Explicitly distinguish available behavior from planned behavior. If a proposal contradicts an accepted ADR, identify that decision and explain the trade-off before replacing it.
+Update the authoritative reference when its contract changes. Check the actual exported types before copying an API example. Explicitly distinguish available behavior from planned behavior. If a proposal changes a documented architectural choice, identify that choice and explain the trade-off before replacing it.

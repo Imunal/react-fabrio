@@ -34,4 +34,4 @@ Look up public exports and callbacks in the [API reference](api.md). For field d
 
 ## Contribute
 
-Read [Contributing](../../../CONTRIBUTING.md) to work on the library or [Maintain the documentation](documentation.md) to edit this site. [Release acceptance](release.md) lists the remaining release checks. The [architecture decisions](adr/0001-renderer-independent-document.md) record design choices. Agents should begin with [domain orientation](agents/domain.md).
+Read [Contributing](../../../CONTRIBUTING.md) to work on the library or [Maintain the documentation](documentation.md) to edit this site. [Release acceptance](release.md) lists the remaining release checks. Agents should begin with [domain orientation](agents/domain.md).

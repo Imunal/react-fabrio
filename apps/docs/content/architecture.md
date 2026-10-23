@@ -31,6 +31,6 @@ Editing uses physical-to-viewport conversion. Export uses physical-to-output-pix
 
 Browser resource loading belongs outside core. Durable URLs and source dimensions are represented in the document; decoded image/font objects are transient. Hosts own resource retention and CORS.
 
-The decisions on [document ownership](adr/0001-renderer-independent-document.md), [physical output](adr/0002-physical-coordinates-and-output.md) and [optional mug architecture](adr/0003-optional-mug-preview.md) explain these choices. [Product scope](product.md) describes current capabilities; [release acceptance](release.md) tracks remaining checks and future targets.
+See the [design document](design-document.md), [production](production.md) and [previews](previews.md) references for the corresponding contracts. [Product scope](product.md) describes current capabilities; [release acceptance](release.md) tracks remaining checks and future targets.
 
 Core uses Zod for schema construction and runtime shape validation, `z.infer` for JSON contract types, and `z.toJSONSchema` for external schemas. Product-dependent checks keep their stable validation issue codes.

@@ -364,8 +364,8 @@ export const DesignWorkspace = ({
                 aria-label={t("fit")}
                 isDisabled={fitted}
                 onPress={() => {
-                  setZoom(1);
-                  center();
+                  if (zoom === 1) center();
+                  else setZoom(1);
                 }}
               >
                 <EditorIcon name="fit" />

@@ -3,7 +3,7 @@ title: "Saved design document"
 description: "Persist and reopen versioned physical design documents."
 ---
 
-`DesignDocument` stores the customer's editable content. It contains no viewport dimensions or Fabric serialization. [ADR 0001](adr/0001-renderer-independent-document.md) records this boundary. For storage and reopening steps, use [Save and reopen designs](guides/save-design.md).
+`DesignDocument` stores the customer's editable content. It contains no viewport dimensions or Fabric serialization. [Architecture](architecture.md) explains this separation. For storage and reopening steps, use [Save and reopen designs](guides/save-design.md).
 
 ```ts
 import { createDesignDocument, validateDesignDocument } from "@react-fabrio/core";

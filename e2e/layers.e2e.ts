@@ -39,9 +39,11 @@ test("keyboard drag cancels with Escape without closing the list", async ({ page
   const handle = rows.first().getByRole("button", { name: "Przeciągnij warstwę", exact: true });
   await handle.focus();
   await page.keyboard.press("Enter");
+  // React Aria installs keyboard drag listeners before focusing the initial drop target.
+  await expect(page.locator(".rf-layer-drop[data-drop-target]").getByRole("button")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("grid", { name: "Elementy", exact: true })).toBeVisible();
-  expect(await rows.allTextContents()).toEqual(names);
+  await expect(rows).toHaveText(names);
   await expect(handle).toBeFocused();
 });
 
@@ -67,7 +69,7 @@ for (const [width, height] of [
   [820, 1180],
   [390, 844],
 ]) {
-  test(`mouse drag reorders the document at ${width}x${height}`, async ({ page }) => {
+  test(`mouse drag reorders the document at ${width}x${height}`, async ({ page, browserName }) => {
     await page.setViewportSize({ width: width!, height: height! });
     await page.goto("/");
     await page.getByRole("button", { name: "Elementy", exact: true }).click();
@@ -83,6 +85,8 @@ for (const [width, height] of [
       steps: 3,
     });
     await page.mouse.move(bounds.x + 100, bounds.y + bounds.height - 4, { steps: 12 });
+    // Firefox delegates native drag autoscroll to the platform; scroll explicitly in automation.
+    if (browserName === "firefox") await page.mouse.wheel(0, 500);
     await expect
       .poll(() => list.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2))
       .toBe(true);
@@ -222,8 +226,11 @@ test("switching decoration areas cancels the drag", async ({ page }) => {
     .evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.locator(".rf-layer-row")).toHaveCount(0);
   await page.mouse.up();
-  await page.locator(".rf-areas button").filter({ hasText: "Przód" }).click();
-  await page.getByRole("button", { name: "Elementy", exact: true }).click();
+  // WebKit suppresses pointer clicks after the native drag source is unmounted.
+  const front = page.locator(".rf-areas button").filter({ hasText: "Przód" });
+  await front.press("Enter");
+  await expect(front).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Elementy", exact: true }).press("Enter");
   await expect(page.locator(".rf-layer-row")).toHaveCount(2);
 });
 

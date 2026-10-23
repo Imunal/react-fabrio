@@ -12,7 +12,7 @@ See `apps/docs/content/agents/triage-labels.md` when applying triage roles.
 
 ### Domain docs
 
-Single-context: root `GLOSSARY.md` and `apps/docs/content/adr/`.
+Single-context: root `GLOSSARY.md` and `apps/docs/content/architecture.md`.
 See `apps/docs/content/agents/domain.md` before exploring the codebase.
 
 ### Product and implementation

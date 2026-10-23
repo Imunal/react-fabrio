@@ -100,7 +100,7 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - name: Build library packages
-        run: pnpm --filter './packages/**' -r build
+        run: pnpm build:packages
       - name: Publish packages and create GitHub release
         run: pnpm release
         env:

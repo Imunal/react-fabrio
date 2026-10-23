@@ -75,19 +75,38 @@ test("side grips resize and the round handle rotates the selected image", async 
   await page.getByText("Zaawansowane", { exact: true }).click();
   await page.getByLabel("X (mm)", { exact: true }).fill("70");
   await page.getByLabel("Y (mm)", { exact: true }).fill("25");
+  // Give the handles room on short screens and clear hover from the moved toolbar.
+  await page.getByRole("button", { name: "Zamknij panel", exact: true }).click();
+  await page.mouse.move(0, 0);
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
+  await expect
+    .poll(async () => {
+      const box = (await page.locator(".rf-canvas").boundingBox())!;
+      const pixels = box.width / 200;
+      await page.mouse.move(box.x + 110 * pixels, box.y + (25 + 40 / 3) * pixels);
+      return page
+        .locator("canvas.upper-canvas")
+        .evaluate((canvas) => getComputedStyle(canvas).cursor);
+    })
+    .toBe("e-resize");
   const box = (await page.locator(".rf-canvas").boundingBox())!;
   const pixels = box.width / 200;
   const centerY = box.y + (25 + 40 / 3) * pixels;
   // when
   await page.mouse.move(box.x + 110 * pixels, centerY);
   await page.mouse.down();
-  await page.mouse.move(box.x + 130 * pixels, centerY, { steps: 10 });
+  // Browser mouse coordinates use whole CSS pixels; round instead of truncating the target.
+  await page.mouse.move(Math.round(box.x + 130 * pixels), centerY, { steps: 10 });
   await page.mouse.up();
   // then
   await expect
-    .poll(async () => Number(await page.getByLabel("Szerokość (mm)", { exact: true }).inputValue()))
+    .poll(() =>
+      page.evaluate(() => JSON.parse(localStorage.getItem("fabrio-mug")!).areas.wrap.at(-1).width),
+    )
     .toBeCloseTo(60, 0);
-  await expect(page.getByLabel("X (mm)", { exact: true })).toHaveValue("70");
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem("fabrio-mug")!).areas.wrap.at(-1).x),
+  ).toBe(70);
   // when
   const centerX = box.x + 100 * pixels;
   const rotationY = box.y + 25 * pixels - 36;
@@ -106,6 +125,7 @@ test("side grips resize and the round handle rotates the selected image", async 
   await expect(page.locator(".rf-alignment-guides line")).toHaveCount(2);
   // when
   await page.mouse.up();
+  await page.getByRole("button", { name: "Zdjęcia", exact: true }).click();
   // then
   await expect
     .poll(async () =>

@@ -58,6 +58,7 @@ test("translates an existing resource error without revealing technical details"
     route.fulfill({ status: 503, body: "private diagnostic" }),
   );
   await page.goto("/");
+  await expect(page.getByRole("status")).toContainText("Nie udało się ukończyć");
   await page.getByRole("button", { name: "Tekst", exact: true }).click();
   await page.getByRole("button", { name: "Dodaj tekst", exact: true }).click();
   await page.getByLabel("Twój tekst").fill("Keep this design");

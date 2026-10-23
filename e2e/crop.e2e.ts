@@ -178,15 +178,17 @@ for (const [width, height] of [
     const frame = (await page
       .getByRole("group", { name: "Kadr zdjęcia", exact: true })
       .boundingBox())!;
-    const apply = (await page
-      .getByRole("button", { name: "Zastosuj kadr", exact: true })
-      .boundingBox())!;
-    for (const box of [frame, apply]) {
+    const expectInsideViewport = (box: NonNullable<typeof frame>) => {
       expect(box.x).toBeGreaterThanOrEqual(0);
       expect(box.y).toBeGreaterThanOrEqual(0);
       expect(box.x + box.width).toBeLessThanOrEqual(width!);
       expect(box.y + box.height).toBeLessThanOrEqual(height!);
-    }
+    };
+    expectInsideViewport(frame);
+    // Compact panels scroll their crop actions independently of the workspace.
+    const apply = page.getByRole("button", { name: "Zastosuj kadr", exact: true });
+    await apply.scrollIntoViewIfNeeded();
+    expectInsideViewport((await apply.boundingBox())!);
     await page.screenshot({ path: `test-results/crop-${width}-${height}.png` });
   });
 }
@@ -252,13 +254,20 @@ test("leaving crop restores workspace zoom and scrolling", async ({ page }) => {
     .getByRole("row", { name: "Zdjęcie memory", exact: true })
     .getByRole("button", { name: "Edytuj", exact: true })
     .click();
+  const fittedWidth = (await page.locator(".rf-product").boundingBox())!.width;
   await page.getByLabel("Zoom", { exact: true }).fill("3");
   const viewport = page.locator(".rf-viewport");
   await expect
     .poll(() =>
-      viewport.evaluate(
-        (node) => node.scrollWidth > node.clientWidth || node.scrollHeight > node.clientHeight,
-      ),
+      viewport.evaluate((node, width) => {
+        const surface = node.querySelector<HTMLElement>(".rf-product")!;
+        // Zoom first resizes the project, then centers scrolling on the next animation frame.
+        return (
+          Math.abs(surface.getBoundingClientRect().width - width * 3) <= 1 &&
+          Math.abs(node.scrollLeft - (node.scrollWidth - node.clientWidth) / 2) <= 1 &&
+          Math.abs(node.scrollTop - (node.scrollHeight - node.clientHeight) / 2) <= 1
+        );
+      }, fittedWidth),
     )
     .toBe(true);
   const before = await viewport.evaluate((node) => {
