@@ -2,6 +2,12 @@
 
 Use Node and pnpm versions declared in [package.json](package.json). Install dependencies with `pnpm install`, then run `pnpm dev` for the playground.
 
+Turborepo runs workspace builds, typechecks, development and preview servers, and documentation browser tests. All Turbo task caching is disabled; every invocation executes its selected tasks. Build dependencies run before their consumers, while independent tasks can run in parallel.
+
+Use `pnpm build` for all libraries and applications, or `pnpm build:packages` for libraries only. Select a workspace directly with `pnpm exec turbo run build --filter=@react-fabrio/ui`; this also builds its dependencies. `pnpm typecheck` checks all workspaces, integration examples, E2E tests and the root Node configuration without requiring a build first. `pnpm dev` starts only the playground, and `pnpm docs:dev` starts only documentation. Server arguments pass through, for example `pnpm dev --host 127.0.0.1 --port 4173 --strictPort`.
+
+Vitest, coverage, lint, formatting, React Doctor and playground E2E tests keep their existing runners. `pnpm test` runs Vitest; `pnpm docs:test` runs documentation browser tests against an existing documentation build. CI continues to cache pnpm dependencies only.
+
 ## Workflow
 
 Read the [glossary](GLOSSARY.md), [architecture](apps/docs/content/architecture.md), and [relevant domain references](apps/docs/content/index.md). Keep changes in the owning package and update the reference that defines the changed contract. Add meaningful behavior tests for document fidelity, permissions, output correctness or customer workflows; avoid tests that duplicate implementation details.
