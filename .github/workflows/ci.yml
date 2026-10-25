@@ -34,6 +34,10 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -43,11 +47,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
-      - run: pnpm test:e2e
+      - run: pnpm test:e2e --shard=${{ matrix.shard }}/4 --workers=2
       - uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: playwright-failures
+          name: playwright-failures-${{ matrix.shard }}
           path: |
             test-results/
             playwright-report/

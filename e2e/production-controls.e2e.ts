@@ -156,5 +156,14 @@ test("enlarged viewport pans and fit recenters without saving", async ({ page })
   await expect(
     page.getByRole("button", { name: "Pokaż cały projekt", exact: true }),
   ).toBeDisabled();
+  await expect
+    .poll(() =>
+      viewport.evaluate(
+        (node) =>
+          Math.abs(node.scrollLeft - (node.scrollWidth - node.clientWidth) / 2) <= 2 &&
+          Math.abs(node.scrollTop - (node.scrollHeight - node.clientHeight) / 2) <= 2,
+      ),
+    )
+    .toBe(true);
   expect(await page.evaluate(() => localStorage.getItem("fabrio-mug"))).toBe(saved);
 });

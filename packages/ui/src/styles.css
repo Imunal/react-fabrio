@@ -745,6 +745,8 @@
   min-height: 100%;
   width: max-content;
   padding: 64px;
+  /* Keep the previous canvas size from extending scroll bounds during a resize. */
+  overflow: clip;
 }
 .rf-editor .rf-stage .rf-product {
   flex-shrink: 0;
