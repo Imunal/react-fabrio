@@ -8,7 +8,6 @@ export default {
     [
       "@semantic-release/exec",
       {
-        verifyConditionsCmd: "npm whoami --registry https://registry.npmjs.org/",
         prepareCmd: "node scripts/prepare-release.mjs ${nextRelease.version}",
         publishCmd: "pnpm --filter './packages/**' -r publish --access public --no-git-checks",
       },
