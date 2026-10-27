@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "productId": "mug",
+  "revision": "1",
+  "assets": {
+    "little-moments": {
+      "id": "little-moments",
+      "url": "/images/little-moments.png",
+      "mimeType": "image/png",
+      "width": 1536,
+      "height": 1024,
+      "durable": true
+    }
+  },
+  "areas": {
+    "wrap": [
+      {
+        "id": "memory-photo",
+        "type": "image",
+        "assetId": "little-moments",
+        "x": 10,
+        "y": 12,
+        "width": 68,
+        "height": 45.333,
+        "rotation": 0
+      },
+      {
+        "id": "title",
+        "x": 80,
+        "y": 21,
+        "width": 110,
+        "height": 29,
+        "rotation": 0,
+        "type": "text",
+        "text": "Slow mornings.\nGood company.",
+        "fontId": "sans",
+        "fontSize": 7,
+        "color": "#263c32",
+        "align": "center"
+      },
+      {
+        "id": "heart",
+        "type": "vector",
+        "path": "M12 21 C-6 9 2 -1 12 7 C22 -1 30 9 12 21 Z",
+        "color": "#b87960",
+        "x": 125,
+        "y": 61,
+        "width": 12,
+        "height": 10,
+        "rotation": 0
+      },
+      {
+        "id": "b47718b9-15cd-4fa4-af03-3484423e7ae3",
+        "x": 80,
+        "y": 51,
+        "width": 110,
+        "height": 7,
+        "rotation": 0,
+        "type": "text",
+        "text": "ANNA & TOM · SUMMER 2026",
+        "fontId": "sans",
+        "fontSize": 2.6,
+        "color": "#263c32",
+        "align": "center"
+      }
+    ]
+  }
+}

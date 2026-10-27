@@ -11,6 +11,16 @@ React Fabrio is a React library for building product personalization editors for
 
 Customers can edit text, images and vector artwork, then preview their design. Fabrio exports PNG files for printing and SVG files for engraving. Use the included editor or build your own interface with the React components.
 
+![React Fabrio desktop editor showing a personalized mug design with a lakeside photograph, “Slow mornings. Good company.” and an Anna & Tom dedication](.github/assets/editor-desktop.png)
+
+Turn a photo and a few words into a personal gift. This mug design combines a photograph, editable text and vector artwork in the playground.
+
+| Rotate the mug in 3D                                                                                                                           | Keep creating on mobile                                                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src=".github/assets/mug-preview.png" alt="The same personalized design wrapped around a mug in the interactive 3D preview" width="640" /> | <img src=".github/assets/editor-mobile.png" alt="The mobile editor showing the personalized mug design and photo gallery" width="200" /> |
+
+Try this design: download the [example JSON](.github/assets/readme-design.json), start the playground, and choose **Project → Open design JSON** with the mug selected.
+
 The packages are still in development and have not been published. Run the playground from this repository to try them.
 
 ## Get started
